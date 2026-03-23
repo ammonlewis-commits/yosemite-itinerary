@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yosemite Family Hikes — 2-Day Itinerary</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  :root {
+    --pine: #1a2e1a;
+    --moss: #3d5c2e;
+    --sage: #7a9e5f;
+    --mist: #c8d9b8;
+    --stone: #e8e0d0;
+    --granite: #6b6358;
+    --gold: #c8900a;
+    --sky: #a8c4d4;
+    --cream: #faf7f2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--pine);
+    min-height: 100vh;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--pine);
+    padding: 64px 32px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 120%, rgba(122,158,95,0.25) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 20%, rgba(168,196,212,0.12) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 16px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 6vw, 60px);
+    color: var(--stone);
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--mist);
+  }
+
+  .hero-sub {
+    color: var(--sage);
+    font-weight: 300;
+    font-size: 15px;
+    margin-bottom: 32px;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--gold);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--granite);
+  }
+
+  /* MAP */
+  .map-section {
+    background: var(--pine);
+    padding: 0 0 4px;
+  }
+
+  #map {
+    width: 100%;
+    height: 420px;
+    display: block;
+  }
+
+  .leaflet-popup-content-wrapper {
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+  }
+
+  .leaflet-popup-content {
+    margin: 12px 16px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .popup-day {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .popup-day-1 { color: #3d5c2e; }
+  .popup-day-2 { color: #5587a2; }
+
+  .popup-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: #1a2e1a;
+    margin-bottom: 6px;
+  }
+
+  .popup-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+
+  .popup-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  .popup-tag-time { background: #e8e0d0; color: #6b6358; }
+  .popup-tag-dist { background: #c8d9b8; color: #3d5c2e; }
+
+  .popup-desc {
+    font-size: 12.5px;
+    color: #6b6358;
+    font-weight: 300;
+  }
+
+  /* map legend */
+  .map-legend {
+    background: var(--pine);
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    padding: 10px 24px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--mist);
+    letter-spacing: 0.05em;
+  }
+
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.3);
+    flex-shrink: 0;
+  }
+
+  .legend-dot-1 { background: #4a8c35; }
+  .legend-dot-2 { background: #3a87c0; }
+
+  /* DAY SECTIONS */
+  .days {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 24px 64px;
+  }
+
+  .day-block {
+    margin-bottom: 56px;
+  }
+
+  .day-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--mist);
+  }
+
+  .day-badge {
+    background: var(--moss);
+    color: var(--mist);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .day-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--pine);
+  }
+
+  .day-note {
+    font-size: 13px;
+    color: var(--granite);
+    font-weight: 300;
+    margin-bottom: 24px;
+    margin-top: 6px;
+  }
+
+  /* STOP CARDS */
+  .stops {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .stop {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 0 20px;
+    position: relative;
+  }
+
+  .stop:not(:last-child) .stop-line {
+    position: absolute;
+    left: 25px;
+    top: 52px;
+    bottom: -12px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--mist), transparent);
+  }
+
+  .stop-num-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 4px;
+  }
+
+  .stop-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .day-1 .stop-circle { background: var(--moss); color: var(--mist); }
+  .day-2 .stop-circle { background: var(--sky); color: var(--pine); }
+
+  .stop-content {
+    background: white;
+    border: 1px solid var(--mist);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+  }
+
+  .stop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+
+  .stop-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: var(--pine);
+  }
+
+  .stop-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .tag {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+
+  .tag-time { background: var(--stone); color: var(--granite); }
+  .tag-dist { background: var(--mist); color: var(--moss); }
+
+  .stop-desc {
+    font-size: 13.5px;
+    font-weight: 300;
+    color: var(--granite);
+    line-height: 1.6;
+  }
+
+  /* PHOTO STRIP */
+  .stop-photos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .stop-photos img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+    border-radius: 4px;
+    background: var(--stone);
+  }
+
+  /* BACKUP HIKES */
+  .backup-section {
+    max-width: 860px;
+    margin: 0 auto 8px;
+    padding: 0 24px;
+  }
+
+  .backup-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 0 12px;
+    border-top: 2px dashed var(--mist);
+    margin-bottom: 8px;
+  }
+
+  .backup-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .backup-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--pine);
+  }
+
+  .backup-intro {
+    font-size: 13px;
+    color: var(--granite);
+    font-weight: 300;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .backup-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .backup-card {
+    background: white;
+    border: 2px dashed #c8b88a;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .backup-card-photos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 110px;
+    gap: 2px;
+  }
+
+  .backup-card-photos img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    background: var(--stone);
+  }
+
+  .backup-card-body {
+    padding: 14px 16px;
+  }
+
+  .backup-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: white;
+    background: var(--gold);
+    padding: 3px 8px;
+    border-radius: 2px;
+    margin-bottom: 7px;
+  }
+
+  .backup-card-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--pine);
+    margin-bottom: 6px;
+  }
+
+  .backup-card-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .backup-card-desc {
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--granite);
+    line-height: 1.55;
+  }
+
+  .backup-use-case {
+    font-size: 12px;
+    font-style: italic;
+    color: var(--moss);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--mist);
+  }
+
+  /* TIPS BOX */
+  .tips-box {
+    max-width: 860px;
+    margin: 0 auto 48px;
+    padding: 0 24px;
+  }
+
+  .tips-inner {
+    background: var(--pine);
+    border-radius: 10px;
+    padding: 28px 32px;
+    color: var(--mist);
+  }
+
+  .tips-inner h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--stone);
+    margin-bottom: 16px;
+  }
+
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+  }
+
+  .tip {
+    font-size: 13px;
+    font-weight: 300;
+    line-height: 1.5;
+    padding-left: 14px;
+    border-left: 2px solid var(--sage);
+    color: var(--mist);
+  }
+
+  .tip strong {
+    display: block;
+    font-weight: 500;
+    color: var(--sage);
+    margin-bottom: 2px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    color: var(--granite);
+    border-top: 1px solid var(--mist);
+  }
+
+  @media (max-width: 480px) {
+    .hero { padding: 48px 20px 36px; }
+    .hero-stats { gap: 20px; }
+    .days { padding: 32px 16px 48px; }
+    .tips-inner { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <p class="hero-eyebrow">Family Adventure Guide · Memorial Day Weekend 2026</p>
+  <h1>Yosemite Valley<br><em>Two Days with Young Children</em></h1>
+  <p class="hero-sub">May 22 (Fri) &amp; May 23 (Sat) · 6 hikes · routed west to east · minimal driving</p>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num">7</span><span class="stat-label">Hikes</span></div>
+    <div class="stat"><span class="stat-num">~7</span><span class="stat-label">Trail Miles</span></div>
+    <div class="stat"><span class="stat-num">~5</span><span class="stat-label">Drive Miles</span></div>
+    <div class="stat"><span class="stat-num">Peak</span><span class="stat-label">Waterfall Season</span></div>
+  </div>
+</div>
+
+<div style="background:#7a3a0a; color:#ffe8cc; padding:12px 24px; text-align:center; font-size:13px; font-weight:500; letter-spacing:0.04em;">
+  ⚠ Memorial Day Weekend — one of Yosemite's busiest weekends of the year. Aim to enter the park before 7:30 AM both days. No timed entry reservation required in 2026.
+</div>
+
+<div class="map-section">
+  <div id="map"></div>
+  <div class="map-legend">
+    <div class="legend-item"><div class="legend-dot legend-dot-1"></div> Day 1 — West to Central Valley</div>
+    <div class="legend-item"><div class="legend-dot legend-dot-2"></div> Day 2 — East Valley (Shuttle)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#c8900a"></div> Backup Hikes</div>
+  </div>
+</div>
+
+<script>
+  const map = L.map('map', { zoomControl: true, scrollWheelZoom: true })
+    .setView([37.734, -119.607], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 18
+  }).addTo(map);
+
+  function makeIcon(color, num) {
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width:34px; height:34px; border-radius:50%;
+        background:${color}; border:3px solid white;
+        box-shadow:0 2px 8px rgba(0,0,0,0.35);
+        display:flex; align-items:center; justify-content:center;
+        font-family:'Georgia',serif; font-size:14px; font-weight:700;
+        color:white; cursor:pointer;
+      ">${num}</div>`,
+      iconSize: [34, 34],
+      iconAnchor: [17, 17],
+      popupAnchor: [0, -20]
+    });
+  }
+
+  const stops = [
+    {
+      lat: 37.716814, lng: -119.6509222,
+      day: 1, num: 1, color: '#4a8c35',
+      name: 'Bridalveil Fall',
+      time: '8:00 AM · 45 min', dist: '0.5 mi',
+      desc: 'First stop entering the valley. Misty 620-foot cascade, paved trail, magical in the morning light.'
+    },
+    {
+      lat: 37.7230508, lng: -119.6356640,
+      day: 1, num: 2, color: '#4a8c35',
+      name: 'El Capitan Meadow · Valley Floor Loop',
+      time: '9:15 AM · 60 min', dist: '1–2 mi',
+      desc: 'Flat meadow walk with unobstructed views of El Capitan rising 3,000 feet. Stroller-friendly.'
+    },
+    {
+      lat: 37.7457554, lng: -119.5956202,
+      day: 1, num: 3, color: '#4a8c35',
+      name: 'Lower Yosemite Falls',
+      time: '11:00 AM · 60 min', dist: '1 mi',
+      desc: 'The showstopper — thundering 320-foot falls up close. Grab lunch at Yosemite Valley Lodge nearby.'
+    },
+    {
+      lat: 37.7461204, lng: -119.5927789,
+      day: 1, num: 4, color: '#4a8c35',
+      name: "Cook's Meadow Loop",
+      time: '12:30 PM · 45 min', dist: '1 mi',
+      desc: 'Three-minute walk from Yosemite Falls. Easy loop with Half Dome perfectly framed across the meadow.'
+    },
+    {
+      lat: 37.741221, lng: -119.5593668,
+      day: 2, num: 5, color: '#3a87c0',
+      name: 'Mirror Lake Trail',
+      time: '8:00 AM · 90 min', dist: '2 mi',
+      desc: 'Shuttle Stop 17. Go early for glassy Half Dome reflections. Best in spring before lake dries up.'
+    },
+    {
+      lat: 37.7326031, lng: -119.5585388,
+      day: 2, num: 6, color: '#3a87c0',
+      name: 'Happy Isles · Vernal Fall Footbridge',
+      time: '10:15 AM · 75 min', dist: '1.6 mi',
+      desc: 'Shuttle Stop 16. Paved path along the roaring Merced River to a stunning footbridge viewpoint.'
+    },
+    {
+      lat: 37.7387, lng: -119.5732,
+      day: 2, num: 7, color: '#3a87c0',
+      name: 'Stoneman Meadow',
+      time: '12:00 PM · 20 min', dist: '0.5 mi',
+      desc: 'Steps from Curry Village parking. Flat open meadow with one of the best unobstructed Half Dome views in the valley. Perfect picnic lunch spot before heading home.'
+    }
+  ];
+
+  // Draw route lines per day
+  const day1coords = stops.filter(s => s.day === 1).map(s => [s.lat, s.lng]);
+  const day2coords = stops.filter(s => s.day === 2).map(s => [s.lat, s.lng]);
+
+  L.polyline(day1coords, { color: '#4a8c35', weight: 3, opacity: 0.6, dashArray: '8 6' }).addTo(map);
+  L.polyline(day2coords, { color: '#3a87c0', weight: 3, opacity: 0.6, dashArray: '8 6' }).addTo(map);
+
+  stops.forEach(s => {
+    const dayLabel = s.day === 1 ? 'Day 1 — West to Central Valley' : 'Day 2 — East Valley';
+    const dayClass = `popup-day-${s.day}`;
+    const popup = `
+      <div class="popup-day ${dayClass}">${dayLabel}</div>
+      <div class="popup-name">${s.num}. ${s.name}</div>
+      <div class="popup-meta">
+        <span class="popup-tag popup-tag-time">${s.time}</span>
+        <span class="popup-tag popup-tag-dist">${s.dist}</span>
+      </div>
+      <div class="popup-desc">${s.desc}</div>
+    `;
+    L.marker([s.lat, s.lng], { icon: makeIcon(s.color, s.num) })
+      .addTo(map)
+      .bindPopup(popup, { maxWidth: 280 });
+  });
+
+  // Backup hikes
+  const backups = [
+    {
+      lat: 37.736401799999996, lng: -119.59938360000001,
+      label: 'B1',
+      name: 'Backup: Swinging Bridge & Merced River Walk',
+      time: '~45 min', dist: '0.75 mi',
+      desc: 'Flat shaded river walk to a footbridge with Yosemite Falls views. Kids can wade. Best swap for El Capitan Meadow or as a lunch stop on Day 1.'
+    },
+    {
+      lat: 37.746592, lng: -119.58016459999999,
+      label: 'B2',
+      name: 'Backup: Ahwahnee Meadow Walk',
+      time: '~20 min', dist: '0.5 mi',
+      desc: 'Gentle meadow loop by the Ahwahnee Hotel. Half Dome views, low crowds. Shuttle Stop 3. Best swap for Stoneman Meadow or add-on between Mirror Lake and Happy Isles.'
+    }
+  ];
+
+  backups.forEach(b => {
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="
+        width:34px; height:34px; border-radius:50%;
+        background:#c8900a; border:3px solid white;
+        box-shadow:0 2px 8px rgba(0,0,0,0.35);
+        display:flex; align-items:center; justify-content:center;
+        font-family:'Georgia',serif; font-size:11px; font-weight:700;
+        color:white; cursor:pointer; letter-spacing:-0.5px;
+      ">${b.label}</div>`,
+      iconSize: [34, 34],
+      iconAnchor: [17, 17],
+      popupAnchor: [0, -20]
+    });
+    const popup = `
+      <div class="popup-day" style="color:#c8900a">Backup Hike</div>
+      <div class="popup-name">${b.name}</div>
+      <div class="popup-meta">
+        <span class="popup-tag popup-tag-time">${b.time}</span>
+        <span class="popup-tag popup-tag-dist">${b.dist}</span>
+      </div>
+      <div class="popup-desc">${b.desc}</div>
+    `;
+    L.marker([b.lat, b.lng], { icon })
+      .addTo(map)
+      .bindPopup(popup, { maxWidth: 280 });
+  });
+</script>
+
+<div class="days">
+
+  <!-- DAY 1 -->
+  <div class="day-block day-1">
+    <div class="day-header">
+      <span class="day-badge">Day 1 · Fri May 22</span>
+      <span class="day-title">West to Central Valley</span>
+    </div>
+    <p class="day-note">Enter from the west entrance and work east — zero backtracking. ~3 miles of driving total. Lunch near Yosemite Village between stops 3 and 4. Friday will be busy — arrive at Bridalveil trailhead by 7:30 AM before lot fills.</p>
+
+    <div class="stops">
+      <div class="stop">
+        <div class="stop-line"></div>
+        <div class="stop-num-col">
+          <div class="stop-circle">1</div>
+        </div>
+        <div class="stop-content">
+          <div class="stop-header">
+            <span class="stop-name">Bridalveil Fall</span>
+            <div class="stop-meta">
+              <span class="tag tag-time">8:00 AM · 45 min</span>
+              <span class="tag tag-dist">0.5 mi</span>
+            </div>
+          </div>
+          <p class="stop-desc">First stop as you enter the valley — no driving past it and doubling back. The 620-foot cascade is shrouded in mist at this hour and the paved trail is easy for any age. Magical introduction to the park.</p>
+          <div class="stop-photos">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/Bridalveil_Fall_-_Yosemite_National_Park_2012-05-28.jpg" alt="Bridalveil Fall" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/25/Bridalveil_Fall_(19577194320).jpg" alt="Bridalveil Fall trail" loading="lazy">
+          </div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <div class="stop-line"></div>
+        <div class="stop-num-col">
+          <div class="stop-circle">2</div>
+        </div>
+        <div class="stop-content">
+          <div class="stop-header">
+            <span class="stop-name">El Capitan Meadow · Valley Floor Loop</span>
+            <div class="stop-meta">
+              <span class="tag tag-time">9:15 AM · 60 min</span>
+              <span class="tag tag-dist">1–2 mi</span>
+            </div>
+          </div>
+          <p class="stop-desc">Short drive east to the meadow. Walk 1–2 miles of the Valley Floor Loop here for jaw-dropping views of El Capitan rising 3,000 feet straight up. Totally flat, stroller-friendly. Look for climbers on the wall.</p>
+          <div class="stop-photos">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Yosemite_National_Park,_El_Capitan,_Half_Dome,_and_Bridalveil_Fall,_from_Tunnel_View_(7882617076).jpg" alt="El Capitan Meadow" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Capitan_Meadows,_Yosemite_National_Park.jpg" alt="Valley Floor Loop" loading="lazy">
+          </div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <div class="stop-line"></div>
+        <div class="stop-num-col">
+          <div class="stop-circle">3</div>
+        </div>
+        <div class="stop-content">
+          <div class="stop-header">
+            <span class="stop-name">Lower Yosemite Falls</span>
+            <div class="stop-meta">
+              <span class="tag tag-time">11:00 AM · 60 min</span>
+              <span class="tag tag-dist">1 mi</span>
+            </div>
+          </div>
+          <p class="stop-desc">The showstopper. Hit it before midday crowds. The roar and mist at the base are genuinely thrilling for kids. Grab lunch at Yosemite Valley Lodge or the Village Store, a 5-minute walk away.</p>
+          <div class="stop-photos">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/9e/The_Base_of_Yosemite_Falls_Trail.jpg" alt="Lower Yosemite Falls" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/96/Lower_Yosemite_Falls_(Unsplash).jpg" alt="Lower Yosemite Falls mist" loading="lazy">
+          </div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <div class="stop-num-col">
+          <div class="stop-circle">4</div>
+        </div>
+        <div class="stop-content">
+          <div class="stop-header">
+            <span class="stop-name">Cook's Meadow Loop</span>
+            <div class="stop-meta">
+              <span class="tag tag-time">12:30 PM · 45 min</span>
+              <span class="tag tag-dist">1 mi</span>
+            </div>
+          </div>
+          <p class="stop-desc">Just a 3-minute walk from the Yosemite Falls trailhead — knock it out right after lunch. Easy flat loop with Half Dome and Yosemite Falls perfectly framed across the meadow. Done by ~2 PM, afternoon is yours.</p>
+          <div class="stop-photos">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/A_Yosemite_meadow_-_Flickr_-_S._Rae.jpg" alt="Cook's Meadow" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a8/Afternoon_light_in_Yosemite_Valley.jpg" alt="Cook's Meadow Half Dome" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="day-block day-2">
+    <div class="day-header">
+      <span class="day-badge">Day 2 · Sat May 23</span>
+      <span class="day-title">East Valley — Shuttle Day</span>
+    </div>
+    <p class="day-note">Park once at Curry Village and ride the free Valley Shuttle all day. Saturday is the peak Memorial Day crowd day — shuttle use is essential. Aim to be parked by 7:00 AM. Both hikes done by noon.</p>
+
+    <div class="stops">
+      <div class="stop">
+        <div class="stop-line"></div>
+        <div class="stop-num-col">
+          <div class="stop-circle">5</div>
+        </div>
+        <div class="stop-content">
+          <div class="stop-header">
+            <span class="stop-name">Mirror Lake Trail</span>
+            <div class="stop-meta">
+              <span class="tag tag-time">8:00 AM · 90 min</span>
+              <span class="tag tag-dist">2 mi</span>
+            </div>
+          </div>
+          <p class="stop-desc">Shuttle Stop 17. Go early for the best Half Dome reflections in still, glassy water — it's one of the most iconic views in the park and kids love seeing the mountain "upside down." Best in spring before the lake dries up.</p>
+          <div class="stop-photos">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b4/Mirror_Lake_Trail_Yosemite_Park_2019.jpg" alt="Mirror Lake Half Dome reflection" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/70/Yosemite_national_park_mirror_lake_2010u.JPG" alt="Mirror Lake trail" loading="lazy">
+          </div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <div class="stop-line"></div>
+        <div class="stop-num-col">
+          <div class="stop-circle">6</div>
+        </div>
+        <div class="stop-content">
+          <div class="stop-header">
+            <span class="stop-name">Happy Isles · Vernal Fall Footbridge</span>
+            <div class="stop-meta">
+              <span class="tag tag-time">10:15 AM · 75 min</span>
+              <span class="tag tag-dist">1.6 mi</span>
+            </div>
+          </div>
+          <p class="stop-desc">Shuttle Stop 16 — just a few stops from Mirror Lake. The paved path to the footbridge winds alongside the roaring Merced River through an ancient forest. Stop at the footbridge; the upper Mist Trail is too steep for young children.</p>
+          <div class="stop-photos">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Vernal_Fall_Mist_Trail.jpg" alt="Happy Isles bridge" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/8e/Mist_Trail_Footbridge.jpg" alt="Happy Isles Merced River" loading="lazy">
+          </div>
+        </div>
+      </div>
+
+      <div class="stop">
+        <div class="stop-num-col">
+          <div class="stop-circle">7</div>
+        </div>
+        <div class="stop-content">
+          <div class="stop-header">
+            <span class="stop-name">Stoneman Meadow</span>
+            <div class="stop-meta">
+              <span class="tag tag-time">12:00 PM · 20 min</span>
+              <span class="tag tag-dist">0.5 mi</span>
+            </div>
+          </div>
+          <p class="stop-desc">Steps from the Curry Village parking lot — no shuttle needed. A flat, open meadow stroll with one of the best unobstructed Half Dome views in the entire valley. Zero elevation gain, perfect for tired legs, and an ideal spot to spread out a picnic lunch before heading home.</p>
+          <div class="stop-photos">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Peaceful_landscape_in_Yosemite_(Unsplash).jpg" alt="Stoneman Meadow Half Dome" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/1/1b/Looking_up_the_Tenaya_Valley_-_Flickr_-_S._Rae.jpg" alt="Stoneman Meadow view" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BACKUP HIKES -->
+<div class="backup-section">
+  <div class="backup-header">
+    <div>
+      <div class="backup-eyebrow">Backup Options</div>
+      <div class="backup-title">If You Have Time or a Hike Doesn't Work Out</div>
+    </div>
+  </div>
+  <p class="backup-intro">Both backups are in Yosemite Valley, require no extra driving, and are easy enough for young children. Swap one in if a primary stop is too crowded, a trailhead lot is full, or the kids have more energy than expected.</p>
+  <div class="backup-cards">
+
+    <div class="backup-card">
+      <div class="backup-card-photos">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Merced_River,_Yosemite_National_Park,_California_1.jpg" alt="Swinging Bridge picnic area" loading="lazy">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Merced_River_-_panoramio_(1).jpg" alt="Swinging Bridge Merced River" loading="lazy">
+      </div>
+      <div class="backup-card-body">
+        <span class="backup-badge">Backup · Day 1</span>
+        <div class="backup-card-name">Swinging Bridge &amp; Merced River Walk</div>
+        <div class="backup-card-meta">
+          <span class="tag tag-time">~45 min</span>
+          <span class="tag tag-dist">0.75 mi</span>
+        </div>
+        <p class="backup-card-desc">A flat, shaded walk along the Merced River to a footbridge with direct views of Yosemite Falls. The river is cold and clear — kids can wade in the shallows on warm days. Picnic tables and restrooms on site. Located between El Capitan Meadow and Lower Yosemite Falls, so it fits naturally into the Day 1 route with zero detour.</p>
+        <p class="backup-use-case">Best swap for: El Capitan Meadow if the Valley Floor Loop lot is full, or as an add-on if you finish Stop 3 early and want a lunch spot with a view.</p>
+      </div>
+    </div>
+
+    <div class="backup-card">
+      <div class="backup-card-photos">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Photographing_Yosemite_Valley_(3020569919).jpg" alt="Ahwahnee Meadow" loading="lazy">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Calvin_kan_2016_(Unsplash).jpg" alt="Ahwahnee Meadow Half Dome view" loading="lazy">
+      </div>
+      <div class="backup-card-body">
+        <span class="backup-badge">Backup · Day 2</span>
+        <div class="backup-card-name">Ahwahnee Meadow Walk</div>
+        <div class="backup-card-meta">
+          <span class="tag tag-time">~20 min</span>
+          <span class="tag tag-dist">0.5 mi</span>
+        </div>
+        <p class="backup-card-desc">A gentle meadow loop in front of the historic Ahwahnee Hotel with sweeping views of Half Dome and the valley walls. Shuttle Stop 3 — easy to reach on Day 2 before or after Mirror Lake. Almost no foot traffic compared to the main trailheads, and the open meadow is perfect for kids to run around.</p>
+        <p class="backup-use-case">Best swap for: Stoneman Meadow if crowds around Curry Village are overwhelming, or as an add-on between Mirror Lake and Happy Isles on Day 2.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TIPS -->
+<div class="tips-box">
+  <div class="tips-inner">
+    <h3>Know Before You Go · May 22–23, 2026</h3>
+    <div class="tips-grid">
+      <div class="tip"><strong>Crowds</strong>This is Memorial Day weekend — among Yosemite's 3 busiest days of the year. Both days require arriving before 7:30 AM. Parking lots fill by 9 AM.</div>
+      <div class="tip"><strong>No Reservations Needed</strong>No timed entry permits are required to drive into Yosemite in 2026. Just purchase your entry pass at recreation.gov in advance to skip gate lines.</div>
+      <div class="tip"><strong>Park Pass</strong>Non-residents now need the America the Beautiful Digital Pass ($250, covers up to 4 people age 16+, valid 1 year). Buy at recreation.gov before arrival.</div>
+      <div class="tip"><strong>Waterfall Peak</strong>Late May is prime waterfall season — snowmelt hits maximum. Lower Yosemite Falls and Bridalveil will be thunderous. Mirror Lake reflections are best before the lake shrinks in summer.</div>
+      <div class="tip"><strong>Shuttle</strong>The free Valley Shuttle runs 7 AM – 10 PM. Day 2 uses stops 16 (Happy Isles) and 17 (Mirror Lake). On a crowded Saturday, shuttles can be packed — ride early.</div>
+      <div class="tip"><strong>Tioga Pass Closed</strong>Hwy 120 East (Tioga Pass) is expected to still be closed May 22–23, reopening around Memorial Day. Doesn't affect any Valley hikes, but there's no high-country access these days.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Yosemite National Park · All hikes in Yosemite Valley · Family-friendly routes for children ages 3+
+</footer>
+
+</body>
+</html>
