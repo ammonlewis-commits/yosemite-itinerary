@@ -629,6 +629,23 @@
     background: var(--pine);
   }
 
+  .accom-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .accom-link-alt {
+    background: white;
+    color: var(--moss);
+    border: 1.5px solid var(--moss);
+  }
+
+  .accom-link-alt:hover {
+    background: var(--moss);
+    color: white;
+  }
+
   @media (max-width: 480px) {
     .accom-details { grid-template-columns: 1fr 1fr; }
   }
@@ -658,7 +675,7 @@
   <p class="hero-sub">May 22 (Fri) &amp; May 23 (Sat) · 6 hikes · routed west to east · minimal driving</p>
   <div class="hero-stats">
     <div class="stat"><span class="stat-num">7</span><span class="stat-label">Hikes</span></div>
-    <div class="stat"><span class="stat-num">~7</span><span class="stat-label">Trail Miles</span></div>
+    <div class="stat"><span class="stat-num">~8</span><span class="stat-label">Trail Miles</span></div>
     <div class="stat"><span class="stat-num">~5</span><span class="stat-label">Drive Miles</span></div>
     <div class="stat"><span class="stat-num">Peak</span><span class="stat-label">Waterfall Season</span></div>
   </div>
@@ -742,15 +759,15 @@
     {
       lat: 37.7326031, lng: -119.5585388,
       day: 2, num: 6, color: '#3a87c0',
-      name: 'Happy Isles · Vernal Fall Footbridge',
-      time: '10:15 AM · 75 min', dist: '1.6 mi',
-      desc: 'Shuttle Stop 16. Paved path along the roaring Merced River to a stunning footbridge viewpoint.'
+      name: 'Mist Trail · To the Stairs',
+      time: '10:00 AM · 2 hrs', dist: '2.1 mi',
+      desc: 'Shuttle Stop 16. Paved climb to Vernal Fall Footbridge, then continue a quarter mile to the base of the iconic 600-step granite stairway. Turn back before climbing — kids can taste the mist without the punishment.'
     },
     {
       lat: 37.7387, lng: -119.5732,
       day: 2, num: 7, color: '#3a87c0',
       name: 'Stoneman Meadow',
-      time: '12:00 PM · 20 min', dist: '0.5 mi',
+      time: '12:30 PM · 20 min', dist: '0.5 mi',
       desc: 'Steps from Curry Village parking. Flat open meadow with one of the best unobstructed Half Dome views in the valley. Perfect picnic lunch spot before heading home.'
     }
   ];
@@ -857,7 +874,10 @@
           <div class="accom-detail-value">4 Adults, 3 Kids</div>
         </div>
       </div>
-      <a href="https://vrbo.onelink.me/ItNz/95f76l2b" target="_blank" rel="noopener" class="accom-link">View Booking on VRBO →</a>
+      <div class="accom-links">
+        <a href="https://vrbo.onelink.me/ItNz/95f76l2b" target="_blank" rel="noopener" class="accom-link">View Booking on VRBO →</a>
+        <a href="https://maps.app.goo.gl/QmxsGitZ5EdDfq3p7" target="_blank" rel="noopener" class="accom-link accom-link-alt">📍 Open in Google Maps</a>
+      </div>
     </div>
   </div>
 </div>
@@ -964,7 +984,7 @@
       <span class="day-badge">Day 2 · Sat May 23</span>
       <span class="day-title">East Valley — Shuttle Day</span>
     </div>
-    <p class="day-note">Park once at Curry Village and ride the free Valley Shuttle all day. Saturday is the peak Memorial Day crowd day — shuttle use is essential. Aim to be parked by 7:00 AM. Both hikes done by noon.</p>
+    <p class="day-note">Park once at Curry Village and ride the free Valley Shuttle all day. Saturday is the peak Memorial Day crowd day — shuttle use is essential. Aim to be parked by 7:00 AM. The Mist Trail to the stairs is the day's main event — wrapped by ~1 PM.</p>
 
     <div class="stops">
       <div class="stop">
@@ -995,16 +1015,18 @@
         </div>
         <div class="stop-content">
           <div class="stop-header">
-            <span class="stop-name">Happy Isles · Vernal Fall Footbridge</span>
+            <span class="stop-name">Mist Trail · To the Stairs</span>
             <div class="stop-meta">
-              <span class="tag tag-time">10:15 AM · 75 min</span>
-              <span class="tag tag-dist">1.6 mi</span>
+              <span class="tag tag-time">10:00 AM · 2 hrs</span>
+              <span class="tag tag-dist">2.1 mi RT</span>
             </div>
           </div>
-          <p class="stop-desc">Shuttle Stop 16 — just a few stops from Mirror Lake. The paved path to the footbridge winds alongside the roaring Merced River through an ancient forest. Stop at the footbridge; the upper Mist Trail is too steep for young children.</p>
+          <p class="stop-desc">Shuttle Stop 16. The paved path climbs alongside the roaring Merced River up to the iconic <strong>Vernal Fall Footbridge</strong> (0.8 mi in — your first big view of Vernal Fall). From there, push another quarter mile of gradual trail to the base of the famous <strong>Mist Trail granite stairs</strong> — over 600 stone steps carved straight up the canyon wall beside the falls.</p>
+          <p class="stop-desc" style="margin-top:8px;"><strong style="color:var(--moss);">Plan:</strong> Turn around at the bottom of the stairs (or take a few steps up to feel the spray) and head back down the way you came. ~500 ft elevation gain, ~2 hrs round trip. The full Mist Trail to the top of Vernal Fall is too steep and slick for young kids in spring — the stairs themselves are the destination.</p>
+          <p class="stop-desc" style="margin-top:8px; font-style:italic; color:var(--moss);">⚠ Bring layers and pack covers — you <em>will</em> get wet from waterfall spray near the stairs in peak snowmelt season. Granite is slippery. Closed-toe shoes only.</p>
           <div class="stop-photos">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Vernal_Fall_Mist_Trail.jpg" alt="Happy Isles bridge" loading="lazy">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/8/8e/Mist_Trail_Footbridge.jpg" alt="Happy Isles Merced River" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Vernal_Fall_Mist_Trail.jpg" alt="Mist Trail granite stairs beside Vernal Fall" loading="lazy">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/8e/Mist_Trail_Footbridge.jpg" alt="Vernal Fall footbridge over Merced River" loading="lazy">
           </div>
         </div>
       </div>
@@ -1017,7 +1039,7 @@
           <div class="stop-header">
             <span class="stop-name">Stoneman Meadow</span>
             <div class="stop-meta">
-              <span class="tag tag-time">12:00 PM · 20 min</span>
+              <span class="tag tag-time">12:30 PM · 20 min</span>
               <span class="tag tag-dist">0.5 mi</span>
             </div>
           </div>
